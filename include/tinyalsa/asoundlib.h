@@ -69,6 +69,7 @@ struct pcm;
 /* Bit formats */
 enum pcm_format {
     PCM_FORMAT_S16_LE = 0,
+    PCM_FORMAT_S24_LE,
     PCM_FORMAT_S32_LE,
 
     PCM_FORMAT_MAX,
@@ -76,9 +77,13 @@ enum pcm_format {
 
 /* Configuration for a stream */
 struct pcm_config {
+    unsigned int channels_min;
+    unsigned int channels_max;
+    unsigned int rate_max;
+    unsigned int rate_min;
     unsigned int channels;
     unsigned int rate;
-    unsigned int period_size;
+    unsigned int period_size; /* frames */
     unsigned int period_count;
     enum pcm_format format;
 
@@ -89,10 +94,13 @@ struct pcm_config {
      * start_threshold   : period_count * period_size
      * stop_threshold    : period_count * period_size
      * silence_threshold : 0
+     *
+     * All values in frames.
      */
     unsigned int start_threshold;
     unsigned int stop_threshold;
     unsigned int silence_threshold;
+    unsigned int avail_min;
 };
 
 /* Mixer control types */
@@ -107,6 +115,10 @@ enum mixer_ctl_type {
 
     MIXER_CTL_TYPE_MAX,
 };
+
+/*Query hardware parameters */
+struct pcm *pcm_hwinfo(unsigned int card, unsigned int device,
+                     unsigned int flags, struct pcm_config *config);
 
 /* Open and close a stream */
 struct pcm *pcm_open(unsigned int card, unsigned int device,
